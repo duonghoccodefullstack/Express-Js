@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App Coin Demo </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                clifford: '#da373d',
+                input:''
+              }
+            }
+          }
+        }
+      </script>  
+      <style>
+        .up {
+            color: green;
+        }
+        .down  {
+            color:red;
+        }
+      </style>
+</head>
+<body>
+    <div>
+        <h1 class="text-3xl font-bold  text-clifford" >App Chat Bit Coin</h1>
+
+    </div>
+    <p>Name :<span id="name"></span> </p>
+    <div class="flex gap-10 " >
+       
+        <form id="form-chat" >
+            <input type="text" 
+            class="border-4 outline-none w-[200px]"
+            id="chat-mess"
+            >
+            <button
+            id="send-chat"
+            >Send</button>
+
+            <p>Giá BitCoin:<span id="bitcoin-price" class="text-red-500"></span></p>
+        </form>
+        <div class="border-2 w-[400px] ">
+            Chat Box 
+            <ul id="messages" >
+                
+            </ul>
+        </div>
+          
+    </div>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io()
+    const name = prompt("Nhập tên của bạn")
+    const user = document.querySelector('#name')
+    user.textContent = name
+    const ChatSubmit = document.querySelector('#form-chat')
+    const Chatmes = document.querySelector('#chat-mess')
+
+    ChatSubmit.addEventListener('submit',(e) => {
+        e.preventDefault()
+        const message = Chatmes.value
+        socket.emit('on-chat' , {
+            name,
+            message:message 
+        })
+        Chatmes.value = ''
+    })
+
+    const messages = document.querySelector('#messages')
+    socket.on('user-chat',(message) => {
+        // console.log(message);
+      
+            const chatItem = document.createElement('li')
+            chatItem.textContent =  `${message.name}:${message.message}`
+            messages.appendChild(chatItem)
+            // message.appendChild(chatItem)
+        })
+    const  priceSpan = document.querySelector('#bitcoin-price')
+    let index = 0
+    socket.on('bitcoin-price', (data) => {
+        // priceSpan.textContent = `${price.price} USD`
+        const {price} = data 
+        if (price  > index ) {
+            priceSpan.className = 'up'
+        }else {
+             priceSpan.className = 'down'
+        }
+        index = price
+         priceSpan.textContent = `${price} USD`
+    })
+</script>
+</html>

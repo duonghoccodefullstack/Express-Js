@@ -69,15 +69,94 @@
 // app.get('/users/new' ,(req,res) => {
 //     res.send('User New Form')
 // })
-const express = require('express');
+// const express = require('express');
+
+// const app = express();
+
+// const userRouter = require('./routes/users');
+// // const postRouter = require('./routes/post');
+
+// app.use('/users', userRouter);
+// // app.use('/users', postRouter);
+// app.listen(3000, () => {
+//     console.log('Server is running on port 3000');
+// });
+
+
+// query params
+
+// app.get('/things/:id([0-9]{5})', function(req, res){
+//     res.send('id: ' + req.params.id);
+//  });
+
+// app.listen(3000, () => {
+//     console.log('Server is running on port 3000');
+// });
+
+//  open port  and handle 404 
+// const port = 3000
+// app.get('/',(req,res) => {
+//     res.send('hello')
+// })
+// // app.listen(port, () => {
+// //     console.log(`Server is running on port ${port}`);
+// // })
+
+// app.get('*', (req, res) => {
+//     res.send('Sorry, this is an invalid URL.');
+//  });
+//  app.listen(3000);
+
+
+//  Project Chat App BitCoin 
+import express from 'express';
+import http from 'http'
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import {Server} from 'socket.io'
+import delay from 'delay'
 
 const app = express();
+const port = 3000
 
-const userRouter = require('./routes/users');
-// const postRouter = require('./routes/post');
+const sever = http.createServer(app)
+// socket Io
+const io = new Server(sever)
 
-app.use('/users', userRouter);
-// app.use('/users', postRouter);
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// method
+app.get('/',(req,res) => {
+    // res.send('hello guys')
+    res.sendFile(( __dirname + '/ChatBitCoin/index.html'))
+})
+
+// socket io
+io.on('connection', (socket) => {
+   
+    socket.on('on-chat', (data) => {
+        io.emit('user-chat', data);
+        // console.log(data);
+        
+    });
 });
+
+async function BitCoin() {
+    while (true) {
+        const price = 9750 + Math.random() * 400  
+        io.emit('bitcoin-price' , {
+            price:parseFloat(price.toFixed(2))
+
+        })
+        await delay(1000)
+    }
+}
+BitCoin()
+// live port 
+app.get('*', (req, res) => {
+    res.send('Sorry, this is an invalid URL.');
+});
+sever.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+})
